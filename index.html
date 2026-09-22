@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>DATA EMPIRE — Product Analyst SQL Academy</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="boot" class="boot">
+    <div class="boot-card">
+      <div class="eyebrow">DATA EMPIRE</div>
+      <h1>Initializing analyst console…</h1>
+      <p>Loading a real SQLite database in your browser.</p>
+      <div class="loader"><span></span></div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <button id="brandBtn" class="brand" aria-label="Dashboard">
+        <span class="brand-mark">DE</span>
+        <span><strong>DATA EMPIRE</strong><small>Product Analyst Academy</small></span>
+      </button>
+      <div class="top-stats">
+        <div><small>RANK</small><strong id="rankLabel">IRON IV</strong></div>
+        <div><small>XP</small><strong id="xpLabel">0</strong></div>
+        <div><small>STREAK</small><strong id="streakLabel">0</strong></div>
+      </div>
+      <button id="menuBtn" class="icon-btn mobile-only">☰</button>
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+      <nav>
+        <button class="nav active" data-view="dashboard"><span>◈</span> Empire</button>
+        <button class="nav" data-view="campaign"><span>⌘</span> Campaign</button>
+        <button class="nav" data-view="tactics"><span>♟</span> Tactics</button>
+        <button class="nav" data-view="ranked"><span>⚔</span> Ranked</button>
+        <button class="nav" data-view="skills"><span>⌁</span> Skills</button>
+        <button class="nav" data-view="report"><span>▤</span> Graduation</button>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="resetBtn" class="text-btn">Reset save</button>
+        <small>Progress saves locally in this browser.</small>
+      </div>
+    </aside>
+
+    <main id="main" class="main"></main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/sql-wasm.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
