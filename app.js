@@ -199,6 +199,73 @@ function modeInstruction(l){
   return "Try the query.";
 }
 
+
+const CHEAT_SHEET = [
+  {at:"1.1", term:"SELECT", meaning:"Choose what you want to see", syntax:"SELECT column", order:1},
+  {at:"1.1", term:"FROM", meaning:"Choose which table it comes from", syntax:"FROM table", order:2},
+  {at:"1.1", term:"*", meaning:"All columns", syntax:"SELECT *", order:null},
+  {at:"1.4", term:",", meaning:"Choose more than one column", syntax:"SELECT name, country", order:null},
+  {at:"2.1", term:"WHERE", meaning:"Keep only rows matching a rule", syntax:"WHERE country = 'Nigeria'", order:4},
+  {at:"2.4", term:">=  <=  >  <", meaning:"Compare values", syntax:"WHERE signup_date >= '2026-05-01'", order:null},
+  {at:"2.5", term:"AND", meaning:"Both rules must be true", syntax:"WHERE country='US' AND platform='iOS'", order:null},
+  {at:"2.6", term:"OR", meaning:"Either rule can be true", syntax:"WHERE country='Nigeria' OR country='Brazil'", order:null},
+  {at:"3.1", term:"ORDER BY", meaning:"Sort your results", syntax:"ORDER BY signup_date DESC", order:8},
+  {at:"3.1", term:"DESC", meaning:"Largest / newest first", syntax:"ORDER BY signup_date DESC", order:null},
+  {at:"3.2", term:"ASC", meaning:"Smallest / oldest first", syntax:"ORDER BY signup_date ASC", order:null},
+  {at:"3.3", term:"LIMIT", meaning:"Return only this many rows", syntax:"LIMIT 5", order:9},
+  {at:"3.5", term:"DISTINCT", meaning:"Remove repeated values", syntax:"SELECT DISTINCT country", order:null},
+  {at:"4.1", term:"COUNT(*)", meaning:"Count rows", syntax:"SELECT COUNT(*) AS users", order:null},
+  {at:"4.1", term:"AS", meaning:"Give a result a readable name", syntax:"COUNT(*) AS users", order:null},
+  {at:"4.4", term:"AVG()", meaning:"Calculate an average", syntax:"SELECT AVG(progress_pct)", order:null},
+  {at:"4.5", term:"GROUP BY", meaning:"Make one result per group", syntax:"GROUP BY platform", order:6},
+  {at:"4.6", term:"HAVING", meaning:"Filter grouped results", syntax:"HAVING COUNT(*) >= 10", order:7},
+  {at:"5.1", term:"JOIN", meaning:"Connect matching rows from two tables", syntax:"JOIN users u ON e.user_id = u.user_id", order:3},
+  {at:"5.1", term:"ON", meaning:"Tell SQL how two tables match", syntax:"ON e.user_id = u.user_id", order:null},
+  {at:"5.3", term:"LEFT JOIN", meaning:"Keep every row from the left table", syntax:"LEFT JOIN enrollments e ON u.user_id=e.user_id", order:3},
+  {at:"5.4", term:"IS NULL", meaning:"Find missing values", syntax:"WHERE e.user_id IS NULL", order:null},
+  {at:"5.5", term:"CASE WHEN", meaning:"Create categories using rules", syntax:"CASE WHEN progress_pct=100 THEN 'Done' ELSE 'Open' END", order:null},
+  {at:"5.6", term:"WITH / CTE", meaning:"Name a temporary query for a multi-step analysis", syntax:"WITH step AS ( SELECT ... ) SELECT ... FROM step", order:0},
+  {at:"6.1", term:"COUNT(DISTINCT)", meaning:"Count unique values only once", syntax:"COUNT(DISTINCT user_id)", order:null},
+  {at:"6.1", term:"julianday()", meaning:"Compare dates in days in this SQLite game", syntax:"julianday(event_time)-julianday(signup_date)", order:null},
+  {at:"7.1", term:"ROW_NUMBER()", meaning:"Number rows inside each group", syntax:"ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_time)", order:null},
+  {at:"7.1", term:"PARTITION BY", meaning:"Restart a window calculation for each group", syntax:"PARTITION BY user_id", order:null}
+];
+
+function lessonNumber(id){
+  return LESSONS.findIndex(l=>l.id===id);
+}
+function unlockedCheats(l){
+  const currentIndex=lessonNumber(l.id);
+  return CHEAT_SHEET.filter(c=>lessonNumber(c.at) <= currentIndex);
+}
+function cheatSheetHTML(l){
+  const items=unlockedCheats(l);
+  const orderItems=items.filter(x=>x.order!==null).sort((a,b)=>a.order-b.order);
+  const seen=new Set();
+  const order=orderItems.filter(x=>{
+    const key=x.order+":"+x.term;
+    if(seen.has(x.order)) return false;
+    seen.add(x.order); return true;
+  });
+  return `<aside class="card cheat-sheet" aria-label="SQL cheat sheet">
+    <div class="cheat-head">
+      <div><div class="mini-label">ALWAYS AVAILABLE</div><h3>SQL Cheat Sheet</h3></div>
+      <span class="reference-badge">no penalty</span>
+    </div>
+    <p class="cheat-intro">Forgot the word or syntax? Look here. This is a reference, not a hint.</p>
+    <div class="cheat-order">
+      <small>QUERY ORDER SO FAR</small>
+      <div>${order.map((x,i)=>`<span><b>${i+1}</b> ${escapeHTML(x.term)}</span>`).join("")}</div>
+    </div>
+    <div class="cheat-list">
+      ${items.map(x=>`<details class="cheat-item">
+        <summary><code>${escapeHTML(x.term)}</code><span>${escapeHTML(x.meaning)}</span></summary>
+        <pre>${escapeHTML(x.syntax)}</pre>
+      </details>`).join("")}
+    </div>
+  </aside>`;
+}
+
 function openLesson(id){
   const l=LESSONS.find(x=>x.id===id);if(!l)return;currentLesson=l;lastRows=[];
   $("#main").innerHTML=`<section class="lesson-shell">
@@ -206,6 +273,7 @@ function openLesson(id){
     <div class="learn-grid">
       <section class="card table-card"><div class="mini-label">THE DATA</div><h3>${escapeHTML(l.table)} table</h3>${sampleTable(l.table)}</section>
       <section class="card query-card"><div class="mini-label">THE QUERY</div><div class="english-box"><small>SQL → ENGLISH</small><strong>${escapeHTML(l.english)}</strong></div><div class="fill-help">${escapeHTML(modeInstruction(l))}</div><textarea id="editor" class="sql-editor" spellcheck="false">${escapeHTML(l.starter)}</textarea><div class="query-actions"><button id="runBtn" class="btn primary" type="button">▶ Run</button><button id="coachBtn" class="btn soft" type="button">Coach</button></div></section>
+      ${cheatSheetHTML(l)}
     </div>
     <section id="coachPanel" class="card coach hidden"><h3>Coach</h3><p>Pick how much help you want. Asking for help is part of learning.</p><div class="coach-options"><button class="btn ghost" data-help="nudge" type="button">Nudge me</button><button class="btn ghost" data-help="teach" type="button">Teach me</button><button class="btn ghost" data-help="show" type="button">Show me</button></div><div id="coachMessage"></div></section>
     <section id="resultCard" class="card result-card"><h3>Result</h3><div id="result" class="result-empty">Run the query and the answer will appear here.</div></section>

@@ -58,3 +58,8 @@ http://localhost:8000
 5. Select the default branch and `/ (root)`.
 
 No backend or API key is required. Progress saves to `localStorage` in the browser.
+
+
+## V3 — Growing SQL Cheat Sheet
+
+Every lesson now includes a side reference containing only SQL concepts introduced up to that point. It includes plain-English meanings, copyable syntax patterns, and the query order learned so far. Looking at the cheat sheet has **no mastery or XP penalty**; Coach help remains tracked separately.
